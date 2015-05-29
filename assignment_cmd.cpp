@@ -22,11 +22,11 @@ struct modstring
 int main(int argc, char **argv)
 {
 	
-	map<string,cust> customer;
-	map<int,modstring> temp;
-	map<string,int> bookprice;
-	map<string,int> bookcount;
-	map<int,string> trnsact;
+	map<string,cust> customer; //holds customer id and its visits and amount spent
+	map<int,modstring> temp;  //temporary map for sorting purpose
+	map<string,int> bookprice; //hold book id and its corresponding price
+	map<string,int> bookcount; //holds book id and its corresponding number of purchase
+	map<int,string> trnsact;  //holds amount and customer id for corresponding purchase
 
 	string id,temp1,temp2,custid;
 	int price,i=0,l,val,c=0,d,r=-1;
