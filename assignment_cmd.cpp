@@ -19,6 +19,24 @@ struct modstring
 	string s[100];
 	int count=0;
 };
+
+int printN_info(map<int,modstring> &temp,int r,int k)
+{
+		map<int,modstring>::iterator it2;
+		int i,c=0;
+		for(it2=temp.begin();it2!=temp.end();++it2)
+		{
+			for(i=0;i<it2->second.count;i++)
+			cout<<it2->second.s[i]<<" "<<k*it2->first<<",";
+			c++;
+			if(c==r)
+			break;
+		}
+		cout<<"\n";
+		temp.clear();		
+}
+
+
 int main(int argc, char **argv)
 {
 	
@@ -33,7 +51,6 @@ int main(int argc, char **argv)
 
 	ifstream fin_trans,fin_price;
 
-	map<int,modstring>::iterator it2;
 	map<string,cust>::iterator it;
 	map<string,int>::iterator it3;
 	map<int,string>::iterator it4;
@@ -49,6 +66,7 @@ int main(int argc, char **argv)
       case 't':
         fin_price.open(optarg);
         break;
+        
       case 'p':
        fin_trans.open(optarg);
        	while(!fin_trans.eof())
@@ -79,94 +97,32 @@ int main(int argc, char **argv)
 					temp2="";
 				}
 			}
-		
 	    	bookcount[temp2]++;
 	    	customer[id].spent+=bookprice[temp2];
 	    	price+=bookprice[temp2];
 	    	trnsact[-price]=id;
 		}
         break;
+        
       case 'r':
         r = atoi(optarg);
-	
-		//section for top N frequent customers and the number of visits they made
-		for(it=customer.begin();it!=customer.end();++it)
-		{
-			val=-(it->second).visit;
-			temp[val].s[temp[val].count]=it->first;
-			temp[val].count++;
-		}
-		c=0;
-		for(it2=temp.begin();it2!=temp.end();++it2)
-		{
-			for(i=0;i<it2->second.count;i++)
-			cout<<it2->second.s[i]<<" "<<-it2->first<<",";
-			c++;
-			if(c==r)
-			break;
-		}
-		cout<<"\n";
-		temp.clear();
-		c=0;
-	
-		//section for top N highest transactions and the corresponding customerid
-		for(it4=trnsact.begin();it4!=trnsact.end();++it4)
-		{
-			cout<<it4->second<<" "<<-it4->first<<",";
-			c++;
-			if(c==r)
-			break;
-		}
-		cout<<"\n";
-		temp.clear();
-		c=0;
-	
-		//the top N highest selling books and quantity sold
-		for(it3=bookcount.begin();it3!=bookcount.end();++it3)
-		{
-			val=-it3->second;
-			temp[val].s[temp[val].count]=it3->first;
-			temp[val].count++;
-		}
-	
-		for(it2=temp.begin();it2!=temp.end();++it2)
-		{
-			for(i=0;i<it2->second.count;i++)
-			cout<<it2->second.s[i]<<" "<<-it2->first<<",";
-			c++;
-			if(c==r)
-			break;
-		}
-		cout<<"\n";
-		temp.clear();
-		c=0;
-	
-		//the N least selling books and quantity sold (this includes books that did not sell at all as well
-		for(it3=bookcount.begin();it3!=bookcount.end();++it3)
-		{
-			val=it3->second;
-			temp[val].s[temp[val].count]=it3->first;
-			temp[val].count++;
-		}
-	
-		for(it2=temp.begin();it2!=temp.end();++it2)
-		{
-			for(i=0;i<it2->second.count;i++)
-			cout<<it2->second.s[i]<<" "<<it2->first<<",";
-			c++;
-			if(c==r)
-			break;
-		}
         break;
+        
       case 'd':
         d = atoi(optarg);
         break;
+        
       case 'c':
         custid= optarg;
-        if(customer[custid].spent>=d)
-        cout<<"1";
-        else cout<<"0";
+        if(customer.find(custid)!=customer.end())
+        {
+        	if(customer[custid].spent>=d)
+        	cout<<"1";
+        	else cout<<"0";
+    	}
+    	else cout<<"customer id does not exist\n";
         break;
+        
       case '?':
         if (optopt == 'c')
           fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -177,7 +133,47 @@ int main(int argc, char **argv)
                    "Unknown option character `\\x%x'.\n",
                    optopt);
         return 1;
+        
       default:
         abort ();
       }
+      
+      if(r!=-1)
+      {
+      	//section for top N frequent customers and the number of visits they made
+		for(it=customer.begin();it!=customer.end();++it)
+		{
+			val=-(it->second).visit;
+			temp[val].s[temp[val].count]=it->first;
+			temp[val].count++;
+		}
+		printN_info(temp,r,-1);
+		c=0;
+		//section for top N highest transactions and the corresponding customerid
+		for(it4=trnsact.begin();it4!=trnsact.end();++it4)
+		{
+			cout<<it4->second<<" "<<-it4->first<<",";
+			c++;
+			if(c==r)
+			break;
+		}
+		cout<<"\n";
+		//section for the top N highest selling books and quantity sold
+		for(it3=bookcount.begin();it3!=bookcount.end();++it3)
+		{
+			val=-it3->second;
+			temp[val].s[temp[val].count]=it3->first;
+			temp[val].count++;
+		}
+		printN_info(temp,r,-1);
+		//section for the N least selling books and quantity sold (this includes books that did not sell at all as well)
+		for(it3=bookcount.begin();it3!=bookcount.end();++it3)
+		{
+			val=it3->second;
+			temp[val].s[temp[val].count]=it3->first;
+			temp[val].count++;
+		}
+		printN_info(temp,r,1);
+	  }
+      
 }
